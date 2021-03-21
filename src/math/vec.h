@@ -41,6 +41,30 @@ public:
     void operator-=(T b);
     void operator-=(vec b);
 
+    vec operator*(T b) const;
+    vec operator*(vec b) const;
+    void operator*=(T b);
+    void operator*=(vec b);
+
+    vec operator/(T b) const;
+    vec operator/(vec b) const;
+    void operator/=(T b);
+    void operator/=(vec b);
+
+    /// <summary>
+    /// Multiplies two 1D arrays and returns 2D array
+    /// </summary>
+    /// <example>
+    /// [1] & [3, 4] = [3, 4]
+    /// [2]            [6, 8]
+    /// </example>
+    /// <returns>
+    /// 2D multiplication result
+    /// res[a_index][b_index]
+    /// </returns>
+    template<typename T>
+    friend vec<vec<T>> operator&(vec<T> &a, vec<T> &b);
+
     std::string to_string() const override;
 };
 
