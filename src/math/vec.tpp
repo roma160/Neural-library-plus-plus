@@ -36,7 +36,11 @@ vec<T>::vec(const vec &to_copy) : vec(to_copy.vec_size) {
             vec_data);
 }
 template<typename T>
-vec<T>::vec() : vec(0) {}
+vec<T>::vec()
+{
+    vec_data = NULL;
+    vec_size = 0;
+}
 template<typename T>
 vec<T>::~vec() {
     DEBUG_MSG("VEC.tpp : destructor call");
@@ -71,63 +75,75 @@ vec<T>& vec<T>::operator=(const vec b) {
 }
 
 template <typename T>
-vec<T> vec<T>::operator+(T b) const
+vec<T> operator+(const vec<T> &a, const T &b)
 {
-    vec ret(*this);
-    for (int i = 0; i < vec_size; i++)
-        ret.vec_data[i] += b;
+    vec<T> ret(a.vec_size);
+    for (int i = 0; i < ret.vec_size; i++)
+        ret.vec_data[i] = a.vec_data[i] + b;
     return ret;
 }
 
 template <typename T>
-vec<T> vec<T>::operator+(vec b) const
+vec<T> operator+(const vec<T> &a, const vec<T> &b)
 {
-    vec *bigger = (vec*) this, *smaller = &b;
+    vec<T> *bigger = (vec<T>*) &a, *smaller = (vec<T>*) &b;
     if (bigger->vec_size < smaller->vec_size)
         std::swap(bigger, smaller);
-    vec ret(*bigger);
+    vec<T> ret(bigger->vec_size);
     for (int i = 0; i < smaller->vec_size; i++)
-        ret.vec_data[i] += smaller->vec_data[i];
+        ret.vec_data[i] = bigger->vec_data[i] + smaller->vec_data[i];
+    std::copy(bigger->vec_data + smaller->vec_size,
+        bigger->vec_data + bigger->vec_size,
+        ret.vec_data + smaller->vec_size);
     return ret;
 }
 
 template <typename T>
-void vec<T>::operator+=(T b)
+vec<T> &operator+=(vec<T> &a, const T &b)
 {
-    for (int i = 0; i < vec_size; i++)
-        vec_data[i] += b;
+    for (int i = 0; i < a.vec_size; i++)
+        a.vec_data[i] += b;
+    return a;
 }
 
 template <typename T>
-void vec<T>::operator+=(vec b)
+vec<T> &operator+=(vec<T> &a, const vec<T> &b)
 {
-	vec *bigger = this, *smaller = &b;
-    if (bigger->vec_size < smaller->vec_size)
-        std::swap(bigger, smaller);
-    for (int i = 0; i < smaller->vec_size; i++)
-        bigger->vec_data[i] += smaller->vec_data[i];
-    *this = *bigger;
+    if (a.vec_size < b.vec_size)
+    {
+        vec<T> ret(b.vec_size);
+        for (int i = 0; i < a.vec_size; i++)
+            ret.vec_data[i] = a.vec_data[i] + b.vec_data[i];
+        std::copy(b.vec_data + a.vec_size,
+            b.vec_data + b.vec_size,
+            ret.vec_data + a.vec_size);
+        a = ret;
+    }
+    else
+        for (int i = 0; i < b.vec_size; i++)
+            a.vec_data[i] += b.vec_data[i];
+    return a;
 }
 
 template <typename T>
-vec<T> vec<T>::operator-(T b) const
+vec<T> operator-(const vec<T> &a, const T &b)
 {
-    vec ret(*this);
-    for (int i = 0; i < vec_size; i++)
-        ret.vec_data[i] -= b;
+    vec<T> ret(a.vec_size);
+    for (int i = 0; i < ret.vec_size; i++)
+        ret.vec_data[i] = a.vec_data[i] - b;
     return ret;
 }
 
 template <typename T>
-vec<T> vec<T>::operator-(vec b) const
+vec<T> operator-(const vec<T> &a, const vec<T> &b)
 {
-	vec *bigger = this, *smaller = &b;
+	vec<T> *bigger = (vec<T>*) &a, *smaller = (vec<T>*) &b;
     bool was_swapped = false;
     if (bigger->vec_size < smaller->vec_size) {
         std::swap(bigger, smaller);
         was_swapped = true;
     }
-    vec ret(bigger->vec_size);
+    vec<T> ret(bigger->vec_size);
 	if(!was_swapped)
 	    for (int i = 0; i < smaller->vec_size; i++)
 	        ret.vec_data[i] = bigger->vec_data[i] - smaller->vec_data[i];
@@ -141,109 +157,111 @@ vec<T> vec<T>::operator-(vec b) const
 }
 
 template <typename T>
-void vec<T>::operator-=(T b)
+vec<T> &operator-=(vec<T> &a, const T& b)
 {
-    for (int i = 0; i < vec_size; i++)
-        vec_data[i] -= b;
+    for (int i = 0; i < a.vec_size; i++)
+        a.vec_data[i] -= b;
+    return a;
 }
 
 template <typename T>
-void vec<T>::operator-=(vec b)
+vec<T> &operator-=(vec<T> &a, const vec<T> &b)
 {
-    vec* bigger = (vec*) this, * smaller = &b;
-    bool was_swapped = false;
-    if (bigger->vec_size < smaller->vec_size) {
-        std::swap(bigger, smaller);
-        was_swapped = true;
+    if (a.vec_size < b.vec_size)
+    {
+        vec<T> buff(b.vec_size);
+        for (int i = 0; i < a.vec_size; i++)
+            buff.vec_data[i] = a.vec_data[i] - b.vec_data[i];
+        for (int i = a.vec_size; i < b.vec_size; i++)
+            buff.vec_data[i] = -b.vec_data[i];
+        a = buff;
     }
-    if (!was_swapped)
-        for (int i = 0; i < smaller->vec_size; i++)
-            bigger->vec_data[i] -= smaller->vec_data[i];
-    else {
-        for (int i = 0; i < smaller->vec_size; i++)
-            bigger->vec_data[i] = smaller->vec_data[i] - bigger->vec_data[i];
-        for (int i = smaller->vec_size; i < bigger->vec_size; i++)
-            bigger->vec_data[i] = -bigger->vec_data[i];
-    }
-    *this = *bigger;
+    else
+        for (int i = 0; i < b.vec_size; i++)
+            a.vec_data[i] -= b.vec_data[i];
+    return a;
 }
 
 template <typename T>
-vec<T> vec<T>::operator*(T b) const
+vec<T> operator*(const vec<T>& a, const T& b)
 {
-    vec ret(*this);
-    for (int i = 0; i < vec_size; i++)
-        ret.vec_data[i] *= b;
+    vec<T> ret(a.vec_size);
+    for (int i = 0; i < ret.vec_size; i++)
+        ret.vec_data[i] = a.vec_data[i] * b;
     return ret;
 }
 
 template <typename T>
-vec<T> vec<T>::operator*(vec b) const
+vec<T> operator*(const vec<T>& a, const vec<T>& b)
 {
-	vec *bigger = (vec*) this, *smaller = &b;
+	vec<T> *bigger = (vec<T>*) &a, *smaller = (vec<T>*) &b;
     if (bigger->vec_size < smaller->vec_size)
         std::swap(bigger, smaller);
-    vec ret(*smaller);
+    vec<T> ret(smaller->vec_size);
     for (int i = 0; i < smaller->vec_size; i++)
-        ret.vec_data[i] *= bigger->vec_data[i];
+        ret.vec_data[i] = smaller->vec_data[i] * bigger->vec_data[i];
     return ret;
 }
 
 template <typename T>
-void vec<T>::operator*=(T b)
+vec<T> &operator*=(vec<T> &a, const T& b)
 {
-    for (int i = 0; i < vec_size; i++)
-        vec_data[i] *= b;
+    for (int i = 0; i < a.vec_size; i++)
+        a.vec_data[i] *= b;
+    return a;
 }
 
 template <typename T>
-void vec<T>::operator*=(vec b)
+vec<T> &operator*=(vec<T> &a, const vec<T> &b)
 {
-    vec* bigger = this, * smaller = &b;
-    if (bigger->vec_size < smaller->vec_size)
-        std::swap(bigger, smaller);
-    for (int i = 0; i < smaller->vec_size; i++)
-        smaller->vec_data[i] *= bigger->vec_data[i];
-    *this = *smaller;
+    int new_size = std::min(a.vec_size, b.vec_size);
+    for (int i = 0; i < new_size; i++)
+        a.vec_data[i] *= b.vec_data[i];
+    T* new_data = new T[new_size];
+    std::copy(a.vec_data, a.vec_data + new_size, new_data);
+    delete[] a.vec_data;
+    a.vec_data = new_data;
+    return a;
 }
 
 template <typename T>
-vec<T> vec<T>::operator/(T b) const
+vec<T> operator/(const vec<T> &a, const T& b)
 {
-    vec ret(*this);
-    for (int i = 0; i < vec_size; i++)
-        ret.vec_data[i] /= b;
+    vec<T> ret(a.vec_size);
+    for (int i = 0; i < ret.vec_size; i++)
+        ret.vec_data[i] = a.vec_data[i] / b;
     return ret;
 }
 
 template <typename T>
-vec<T> vec<T>::operator/(vec b) const
+vec<T> operator/(const vec<T> &a, const vec<T> &b)
 {
-    int ret_size = std::min(vec_size, b.vec_size);
-    vec ret(ret_size);
-    std::copy(vec_data, vec_data + ret_size, ret.vec_data);
+    int ret_size = std::min(a.vec_size, b.vec_size);
+    vec<T> ret(ret_size);
     for (int i = 0; i < ret_size; i++)
-        ret.vec_data[i] /= b.vec_data[i];
+        ret.vec_data[i] = a.vec_data[i] / b.vec_data[i];
     return ret;
 }
 
 template <typename T>
-void vec<T>::operator/=(T b)
+vec<T> &operator/=(vec<T> &a, const T& b)
 {
-    for (int i = 0; i < vec_size; i++)
-        vec_data[i] /= b;
+    for (int i = 0; i < a.vec_size; i++)
+        a.vec_data[i] /= b;
+    return a;
 }
 
 template <typename T>
-void vec<T>::operator/=(vec b)
+vec<T> &operator/=(vec<T> &a, const vec<T> &b)
 {
-    int ret_size = std::min(vec_size, b.vec_size);
+    int ret_size = std::min(a.vec_size, b.vec_size);
     for (int i = 0; i < ret_size; i++)
-        vec_data[i] /= b.vec_data[i];
+        a.vec_data[i] /= b.vec_data[i];
     T* new_data = new T[ret_size];
-    std::copy(vec_data, vec_data + ret_size, new_data);
-    delete[] vec_data;
-    vec_data = new_data;
+    std::copy(a.vec_data, a.vec_data + ret_size, new_data);
+    delete[] a.vec_data;
+    a.vec_data = new_data;
+    return a;
 }
 
 template<typename T>
@@ -264,7 +282,7 @@ vec<vec<T>> operator&(vec<T> &a, vec<T> &b)
     vec<vec<T>> ret(a.vec_size);
 	for(int a_i = 0; a_i < a.vec_size; a_i++)
 	{
-        ret.vec_data[a_i] = vec<T>(b.vec_size);
+        new (ret.vec_data + a_i) vec<T>(b.vec_size);
         for (int b_i = 0; b_i < b.vec_size; b_i++)
             ret.vec_data[a_i].vec_data[b_i] =
             a.vec_data[a_i] * b.vec_data[b_i];

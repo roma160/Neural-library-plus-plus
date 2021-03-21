@@ -30,26 +30,43 @@ public:
     //Operators override
     T& operator[](int i);
     vec& operator=(vec b);
-	
-    vec operator+(T b) const;
-    vec operator+(vec b) const;
-    void operator+=(T b);
-    void operator+=(vec b);
 
-    vec operator-(T b) const;
-    vec operator-(vec b) const;
-    void operator-=(T b);
-    void operator-=(vec b);
+	//Operators
+    template<typename T>
+    friend vec<T> operator+(const vec<T> &a, const T &b);
+    template<typename T>
+    friend vec<T> operator+(const vec<T> &a, const vec<T> &b);
+    template<typename T>
+	friend vec<T> &operator+=(vec<T> &a, const T &b);
+    template<typename T>
+    friend vec<T> &operator+=(vec<T> &a, const vec<T> &b);
 
-    vec operator*(T b) const;
-    vec operator*(vec b) const;
-    void operator*=(T b);
-    void operator*=(vec b);
+    template<typename T>
+    friend vec<T> operator-(const vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> operator-(const vec<T>& a, const vec<T>& b);
+    template<typename T>
+    friend vec<T> &operator-=(vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> &operator-=(vec<T>& a, const vec<T>& b);
 
-    vec operator/(T b) const;
-    vec operator/(vec b) const;
-    void operator/=(T b);
-    void operator/=(vec b);
+    template<typename T>
+    friend vec<T> operator*(const vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> operator*(const vec<T>& a, const vec<T>& b);
+    template<typename T>
+    friend vec<T> &operator*=(vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> &operator*=(vec<T>& a, const vec<T>& b);
+
+    template<typename T>
+    friend vec<T> operator/(const vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> operator/(const vec<T>& a, const vec<T>& b);
+    template<typename T>
+    friend vec<T> &operator/=(vec<T>& a, const T& b);
+    template<typename T>
+    friend vec<T> &operator/=(vec<T>& a, const vec<T>& b);
 
     /// <summary>
     /// Multiplies two 1D arrays and returns 2D array
