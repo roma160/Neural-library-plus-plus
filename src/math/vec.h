@@ -13,22 +13,27 @@ template <typename T>
 class vec : public stringable {
 private:
     T* vec_data;
-    int vec_size;
+    size_t vec_array_size;
+    size_t vec_size;
 
 public:
     vec();
-    vec(int size);
+    vec(size_t size);
     vec(std::initializer_list<T> values);
-    vec(int size, T* values);
+    vec(size_t size, T* values);
     vec(const vec &to_copy);
     ~vec();
 
-    //Exceptions
-    class Exception_VectorsSizesDoesntMatch :
-            public std::logic_error{};
+	//Functions
+    size_t size() const;
+    void resize(size_t new_size);
+
+    T max_element();
+    T sum() const;
 
     //Operators override
     T& operator[](int i);
+    T operator[](int i) const;
     vec& operator=(vec b);
 
 	//Operators

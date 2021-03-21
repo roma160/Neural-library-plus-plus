@@ -7,7 +7,7 @@
 #include <exception>
 #include "vec.h"
 
-#ifdef _DEBUG
+#ifdef _DEBUG_VEC
 #define DEBUG_MSG(msg) std::cout<<msg<<"\n"
 #else
 #define DEBUG_MSG(msg)
@@ -15,9 +15,10 @@
 
 // Constructors :
 template<typename T>
-vec<T>::vec(int size) {
+vec<T>::vec(size_t size) {
     vec_data = new T[size];
     vec_size = size;
+    vec_array_size = size;
 }
 template<typename T>
 vec<T>::vec(const std::initializer_list<T> values) :
@@ -25,7 +26,7 @@ vec(values.size()) {
     std::copy(values.begin(), values.end(), vec_data);
 }
 template<typename T>
-vec<T>::vec(int size, T *values) : vec(size) {
+vec<T>::vec(size_t size, T *values) : vec(size) {
     std::copy(values, values + size, vec_data);
 }
 template<typename T>
@@ -40,6 +41,7 @@ vec<T>::vec()
 {
     vec_data = NULL;
     vec_size = 0;
+    vec_array_size = 0;
 }
 template<typename T>
 vec<T>::~vec() {
@@ -47,9 +49,46 @@ vec<T>::~vec() {
     delete[] vec_data;
 }
 
+template <typename T>
+size_t vec<T>::size() const { return vec_size; }
+
+template <typename T>
+void vec<T>::resize(size_t new_size)
+{
+	if(new_size > vec_array_size)
+	{
+        T* new_data = new T[vec_size];
+        std::copy(vec_data, vec_data + vec_size, new_data);
+        delete[] vec_data;
+        vec_data = new_data;
+        vec_array_size = new_size;
+	}
+    vec_size = new_size;
+}
+
+template <typename T>
+T vec<T>::max_element()
+{
+    if (!vec_size) return NULL;
+    T ret = vec_data[0];
+    for (int i = 1; i < vec_size; i++)
+        if (vec_data[i] > ret) ret = vec_data[i];
+    return ret;
+}
+
+template <typename T>
+T vec<T>::sum() const
+{
+    if (!vec_size) return NULL;
+    T ret = vec_data[0];
+    for (int i = 1; i < vec_size; i++)
+        ret += vec_data[i];
+    return ret;
+}
+
 template<typename T>
 T& vec<T>::operator[](int i) {
-#ifdef _DEBUG
+#ifdef _DEBUG_VEC
     if(i >= vec_size) {
         std::stringstream ss;
         ss<<"You\'ve tried to access "<<i<<"th ";
@@ -59,6 +98,21 @@ T& vec<T>::operator[](int i) {
 #endif
     return vec_data[i];
 }
+
+template <typename T>
+T vec<T>::operator[](int i) const
+{
+#ifdef _DEBUG_VEC
+    if (i >= vec_size) {
+        std::stringstream ss;
+        ss << "You\'ve tried to access " << i << "th ";
+        ss << "element of vec with size of " << vec_size;
+        throw std::out_of_range(ss.str());
+    }
+#endif
+    return vec_data[i];
+}
+
 template<typename T>
 vec<T>& vec<T>::operator=(const vec b) {
     DEBUG_MSG("The VEC.h assigment operator call");

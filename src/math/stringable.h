@@ -6,20 +6,12 @@
 #define NEURALNETWORKTRY_STRINGABLE_H
 
 #include <string>
-#include <typeinfo>
 
 class stringable{
 public:
-    virtual std::string to_string() const{
-        std::string ret(typeid(this).name());
-        ret += " doesn\'t have to_string() overrided in it.";
-        return ret;
-    }
+    virtual std::string to_string() const;
 };
 
-std::ostream& operator << (std::ostream& stream, const stringable& obj) {
-    stream<<obj.to_string();
-    return stream;
-}
+std::ostream& operator<< (std::ostream& stream, const stringable& obj);
 
 #endif //NEURALNETWORKTRY_STRINGABLE_H
