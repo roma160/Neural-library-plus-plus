@@ -7,7 +7,6 @@
 
 #include "stringable.h"
 #include <initializer_list>
-#include <exception>
 #include <stdexcept>
 
 template <typename T>
@@ -15,6 +14,7 @@ class vec : public stringable {
 private:
     T* vec_data;
     int vec_size;
+
 public:
     vec();
     vec(int size);
@@ -30,10 +30,16 @@ public:
     //Operators override
     T& operator[](int i);
     vec& operator=(vec b);
-    vec operator+(T b);
-    vec operator+(vec b);
+	
+    vec operator+(T b) const;
+    vec operator+(vec b) const;
     void operator+=(T b);
     void operator+=(vec b);
+
+    vec operator-(T b) const;
+    vec operator-(vec b) const;
+    void operator-=(T b);
+    void operator-=(vec b);
 
     std::string to_string() const override;
 };
