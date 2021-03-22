@@ -18,7 +18,7 @@ private:
 
 public:
     vec();
-    vec(size_t size);
+    vec(size_t size, bool fill_zeros);
     vec(std::initializer_list<T> values);
     vec(size_t size, T* values);
     vec(const vec &to_copy);
@@ -32,46 +32,46 @@ public:
     T sum() const;
 
     //Operators override
-    T& operator[](int i);
-    T operator[](int i) const;
+    T& operator[](size_t i);
+    T& operator[](size_t i) const;
     vec& operator=(vec b);
 
-	//Operators
+	//Math operators
     template<typename T>
-    friend vec<T> operator+(const vec<T> &a, const T &b);
+    friend vec<T> operator+(const vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> operator+(const vec<T> &a, const G &b);
     template<typename T>
-    friend vec<T> operator+(const vec<T> &a, const vec<T> &b);
-    template<typename T>
-	friend vec<T> &operator+=(vec<T> &a, const T &b);
-    template<typename T>
-    friend vec<T> &operator+=(vec<T> &a, const vec<T> &b);
+    friend vec<T>& operator+=(vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+	friend vec<T> &operator+=(vec<T> &a, const G &b);
 
-    template<typename T>
-    friend vec<T> operator-(const vec<T>& a, const T& b);
     template<typename T>
     friend vec<T> operator-(const vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> operator-(const vec<T>& a, const G& b);
     template<typename T>
-    friend vec<T> &operator-=(vec<T>& a, const T& b);
-    template<typename T>
-    friend vec<T> &operator-=(vec<T>& a, const vec<T>& b);
+    friend vec<T>& operator-=(vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> &operator-=(vec<T>& a, const G& b);
 
-    template<typename T>
-    friend vec<T> operator*(const vec<T>& a, const T& b);
     template<typename T>
     friend vec<T> operator*(const vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> operator*(const vec<T>& a, const G& b);
     template<typename T>
-    friend vec<T> &operator*=(vec<T>& a, const T& b);
-    template<typename T>
-    friend vec<T> &operator*=(vec<T>& a, const vec<T>& b);
+    friend vec<T>& operator*=(vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> &operator*=(vec<T>& a, const G& b);
 
     template<typename T>
-    friend vec<T> operator/(const vec<T>& a, const T& b);
-    template<typename T>
     friend vec<T> operator/(const vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> operator/(const vec<T>& a, const G& b);
     template<typename T>
-    friend vec<T> &operator/=(vec<T>& a, const T& b);
-    template<typename T>
-    friend vec<T> &operator/=(vec<T>& a, const vec<T>& b);
+    friend vec<T>& operator/=(vec<T>& a, const vec<T>& b);
+    template<typename T, typename G>
+    friend vec<T> &operator/=(vec<T>& a, const G& b);
 
     /// <summary>
     /// Multiplies two 1D arrays and returns 2D array

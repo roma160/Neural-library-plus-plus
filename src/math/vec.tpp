@@ -15,22 +15,25 @@
 
 // Constructors :
 template<typename T>
-vec<T>::vec(size_t size) {
+vec<T>::vec(size_t size, bool fill_zeros) {
     vec_data = new T[size];
     vec_size = size;
     vec_array_size = size;
+    if (fill_zeros)
+        std::fill(vec_data, vec_data + vec_size, T());
 }
 template<typename T>
 vec<T>::vec(const std::initializer_list<T> values) :
-vec(values.size()) {
+vec(values.size(), false) {
     std::copy(values.begin(), values.end(), vec_data);
 }
 template<typename T>
-vec<T>::vec(size_t size, T *values) : vec(size) {
+vec<T>::vec(size_t size, T *values) : vec(size, false) {
     std::copy(values, values + size, vec_data);
 }
+
 template<typename T>
-vec<T>::vec(const vec &to_copy) : vec(to_copy.vec_size) {
+vec<T>::vec(const vec &to_copy) : vec(to_copy.vec_size, false) {
     DEBUG_MSG("VEC.tpp : copy constructor call");
     std::copy(to_copy.vec_data,
             to_copy.vec_data + vec_size,
@@ -87,12 +90,13 @@ T vec<T>::sum() const
 }
 
 template<typename T>
-T& vec<T>::operator[](int i) {
+T& vec<T>::operator[](size_t i) {
 #ifdef _DEBUG_VEC
     if(i >= vec_size) {
         std::stringstream ss;
         ss<<"You\'ve tried to access "<<i<<"th ";
         ss<<"element of vec with size of "<<vec_size;
+        std::cerr << ss.str();
         throw std::out_of_range(ss.str());
     }
 #endif
@@ -100,13 +104,14 @@ T& vec<T>::operator[](int i) {
 }
 
 template <typename T>
-T vec<T>::operator[](int i) const
+T& vec<T>::operator[](size_t i) const
 {
 #ifdef _DEBUG_VEC
     if (i >= vec_size) {
         std::stringstream ss;
         ss << "You\'ve tried to access " << i << "th ";
         ss << "element of vec with size of " << vec_size;
+        std::cerr << ss.str();
         throw std::out_of_range(ss.str());
     }
 #endif
@@ -128,8 +133,8 @@ vec<T>& vec<T>::operator=(const vec b) {
     return *this;
 }
 
-template <typename T>
-vec<T> operator+(const vec<T> &a, const T &b)
+template <typename T, typename G>
+vec<T> operator+(const vec<T> &a, const G &b)
 {
     vec<T> ret(a.vec_size);
     for (int i = 0; i < ret.vec_size; i++)
@@ -143,7 +148,7 @@ vec<T> operator+(const vec<T> &a, const vec<T> &b)
     vec<T> *bigger = (vec<T>*) &a, *smaller = (vec<T>*) &b;
     if (bigger->vec_size < smaller->vec_size)
         std::swap(bigger, smaller);
-    vec<T> ret(bigger->vec_size);
+    vec<T> ret(bigger->vec_size, false);
     for (int i = 0; i < smaller->vec_size; i++)
         ret.vec_data[i] = bigger->vec_data[i] + smaller->vec_data[i];
     std::copy(bigger->vec_data + smaller->vec_size,
@@ -152,8 +157,8 @@ vec<T> operator+(const vec<T> &a, const vec<T> &b)
     return ret;
 }
 
-template <typename T>
-vec<T> &operator+=(vec<T> &a, const T &b)
+template <typename T, typename G>
+vec<T> &operator+=(vec<T> &a, const G &b)
 {
     for (int i = 0; i < a.vec_size; i++)
         a.vec_data[i] += b;
@@ -165,7 +170,7 @@ vec<T> &operator+=(vec<T> &a, const vec<T> &b)
 {
     if (a.vec_size < b.vec_size)
     {
-        vec<T> ret(b.vec_size);
+        vec<T> ret(b.vec_size, false);
         for (int i = 0; i < a.vec_size; i++)
             ret.vec_data[i] = a.vec_data[i] + b.vec_data[i];
         std::copy(b.vec_data + a.vec_size,
@@ -179,8 +184,8 @@ vec<T> &operator+=(vec<T> &a, const vec<T> &b)
     return a;
 }
 
-template <typename T>
-vec<T> operator-(const vec<T> &a, const T &b)
+template <typename T, typename G>
+vec<T> operator-(const vec<T> &a, const G &b)
 {
     vec<T> ret(a.vec_size);
     for (int i = 0; i < ret.vec_size; i++)
@@ -197,7 +202,7 @@ vec<T> operator-(const vec<T> &a, const vec<T> &b)
         std::swap(bigger, smaller);
         was_swapped = true;
     }
-    vec<T> ret(bigger->vec_size);
+    vec<T> ret(bigger->vec_size, false);
 	if(!was_swapped)
 	    for (int i = 0; i < smaller->vec_size; i++)
 	        ret.vec_data[i] = bigger->vec_data[i] - smaller->vec_data[i];
@@ -210,8 +215,8 @@ vec<T> operator-(const vec<T> &a, const vec<T> &b)
     return ret;
 }
 
-template <typename T>
-vec<T> &operator-=(vec<T> &a, const T& b)
+template <typename T, typename G>
+vec<T> &operator-=(vec<T> &a, const G& b)
 {
     for (int i = 0; i < a.vec_size; i++)
         a.vec_data[i] -= b;
@@ -236,10 +241,10 @@ vec<T> &operator-=(vec<T> &a, const vec<T> &b)
     return a;
 }
 
-template <typename T>
-vec<T> operator*(const vec<T>& a, const T& b)
+template <typename T, typename G>
+vec<T> operator*(const vec<T>& a, const G& b)
 {
-    vec<T> ret(a.vec_size);
+    vec<T> ret(a.vec_size, false);
     for (int i = 0; i < ret.vec_size; i++)
         ret.vec_data[i] = a.vec_data[i] * b;
     return ret;
@@ -251,14 +256,14 @@ vec<T> operator*(const vec<T>& a, const vec<T>& b)
 	vec<T> *bigger = (vec<T>*) &a, *smaller = (vec<T>*) &b;
     if (bigger->vec_size < smaller->vec_size)
         std::swap(bigger, smaller);
-    vec<T> ret(smaller->vec_size);
+    vec<T> ret(smaller->vec_size, false);
     for (int i = 0; i < smaller->vec_size; i++)
         ret.vec_data[i] = smaller->vec_data[i] * bigger->vec_data[i];
     return ret;
 }
 
-template <typename T>
-vec<T> &operator*=(vec<T> &a, const T& b)
+template <typename T, typename G>
+vec<T> &operator*=(vec<T> &a, const G& b)
 {
     for (int i = 0; i < a.vec_size; i++)
         a.vec_data[i] *= b;
@@ -278,8 +283,8 @@ vec<T> &operator*=(vec<T> &a, const vec<T> &b)
     return a;
 }
 
-template <typename T>
-vec<T> operator/(const vec<T> &a, const T& b)
+template <typename T, typename G>
+vec<T> operator/(const vec<T> &a, const G& b)
 {
     vec<T> ret(a.vec_size);
     for (int i = 0; i < ret.vec_size; i++)
@@ -297,8 +302,8 @@ vec<T> operator/(const vec<T> &a, const vec<T> &b)
     return ret;
 }
 
-template <typename T>
-vec<T> &operator/=(vec<T> &a, const T& b)
+template <typename T, typename G>
+vec<T> &operator/=(vec<T> &a, const G& b)
 {
     for (int i = 0; i < a.vec_size; i++)
         a.vec_data[i] /= b;
@@ -321,7 +326,7 @@ vec<T> &operator/=(vec<T> &a, const vec<T> &b)
 template<typename T>
 std::string vec<T>::to_string() const {
     std::stringstream ss;
-    ss<<"vec["<<vec_size<<"]{ ";
+    ss<<"v("<<vec_size<<"){ ";
     if(vec_size >= 1)
         ss<<vec_data[0];
     for(int i = 1; i < vec_size; i++)
@@ -333,10 +338,10 @@ std::string vec<T>::to_string() const {
 template <typename T>
 vec<vec<T>> operator&(vec<T> &a, vec<T> &b)
 {
-    vec<vec<T>> ret(a.vec_size);
+    vec<vec<T>> ret(a.vec_size, false);
 	for(int a_i = 0; a_i < a.vec_size; a_i++)
 	{
-        new (ret.vec_data + a_i) vec<T>(b.vec_size);
+        new (ret.vec_data + a_i) vec<T>(b.vec_size, false);
         for (int b_i = 0; b_i < b.vec_size; b_i++)
             ret.vec_data[a_i].vec_data[b_i] =
             a.vec_data[a_i] * b.vec_data[b_i];

@@ -1,26 +1,18 @@
 #ifndef NEURALNETWORKTRY_NEURONFUNCS_H
 #define NEURALNETWORKTRY_NEURONFUNCS_H
 
-#include <cmath>
+enum NeuronFunction : int
+{
+	Sigmoid
+};
 
 namespace __NeuronFunctionsRealization
 {
 	double Sigmoid(double x);
 	double dSigmoid(double x);
-}
 
-struct NeuronFunction
-{
-	double (*Function)(double);
-	double (*dFunction)(double);
-};
-
-namespace NeuronFunctions
-{
-	const NeuronFunction Sigmoid{
-		__NeuronFunctionsRealization::Sigmoid,
-		__NeuronFunctionsRealization::dSigmoid
-	};
+	double (*getFunction(NeuronFunction neuron_function))(double);
+	double (*getDFunction(NeuronFunction neuron_function))(double);
 }
 
 #endif //NEURALNETWORKTRY_NEURONFUNCS_H
