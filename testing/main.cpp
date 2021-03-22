@@ -13,7 +13,7 @@ double input_data[4][2] = {
 double output_data[4][1] = {
 	{0}, {1}, {1}, {0}
 };
-double c = 1;
+double c = 1, bc = 0.005;
 int iters_num = 100;
 
 double train_iter()
@@ -29,25 +29,26 @@ double train_iter()
 				{ 1, output_data[test] });
 		error_av += backward.error;
 		network.Weights += backward.dC_dw * c;
+		network.BasisWeights += backward.dC_dbw * bc;
 	}
 	return error_av / iters_num;
 }
 
 int main(){
-	/*vec<vec<vec<double>>> best_weights;
+	SimpleNetwork best_network;
 	double min_err = DBL_MAX, buff;
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 1000; i++)
 	{
 		buff = train_iter();
 		if(min_err > buff)
 		{
 			min_err = buff;
-			best_weights = network.Weights;
+			best_network = network;
 			cout << "New min error : " << min_err << "\n";
 		}
 	}
 
-	network.Weights = best_weights;
+	network = best_network;
 	for(int i = 0; i < 4; i++)
 	{
 		vec<double> input = { 2, input_data[i] };
@@ -55,10 +56,10 @@ int main(){
 		SimplePropagationResult res = network.ForwardPropagation(input);
 		cout << res.a[2] << "\n";
 	}
-	cout << best_weights;*/
-	//network.SaveToFile("D:\\buff\\test", true);
+	cout << network.BasisWeights << "\n";
+	network.SaveToFile("D:\\buff\\test", false);
 
-	SimpleNetwork test_read("D:\\buff\\test", true);
+	/*SimpleNetwork test_read("D:\\buff\\test", true);
 	cout << test_read.Weights<<"\n";
 	for (int i = 0; i < 4; i++)
 	{
@@ -66,7 +67,7 @@ int main(){
 		cout << input << " - ";
 		SimplePropagationResult res = test_read.ForwardPropagation(input);
 		cout << res.a[2] << "\n";
-	}
+	}*/
 	
     return 0;
 }

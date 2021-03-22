@@ -21,13 +21,19 @@ private:
 	
 public:
 	vec<vec<vec<double>>> Weights;
+	/// <summary>
+	/// BasisWeights[weight_layer][to_neuron]
+	/// </summary>
+	vec<vec<double>> BasisWeights;
 	vec<size_t> Structure;
-	
+
+	SimpleNetwork();
 	SimpleNetwork(NeuronFunction function,
 		std::initializer_list<size_t> structure);
 	SimpleNetwork(NeuronFunction function,
 		std::initializer_list<size_t> structure,
-		const vec<vec<vec<double>>>& weights);
+		const vec<vec<vec<double>>>& weights,
+		const vec<vec<double>>& basis_weights);
 	explicit SimpleNetwork(std::string& file_location, bool is_in_binary);
 	explicit SimpleNetwork(const char* file_location, bool is_in_binary);
 	SimpleNetwork(const SimpleNetwork& to_copy);
@@ -76,6 +82,11 @@ struct SimpleBackwardPropagationResult
 	/// dC_dw for each weight
 	/// </summary>
 	vec<vec<vec<double>>> dC_dw;
+
+	/// <summary>
+	/// dC_dbw for each basis weight
+	/// </summary>
+	vec<vec<double>> dC_dbw;
 	
 	double error;
 };

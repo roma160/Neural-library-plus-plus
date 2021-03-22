@@ -4,12 +4,15 @@
 #include <fstream>
 #include <iostream>
 
+SimpleNetwork::SimpleNetwork() {}
+
 SimpleNetwork::SimpleNetwork(NeuronFunction function, 
-	std::initializer_list<size_t> structure)
+                             std::initializer_list<size_t> structure)
 {
+	layers_num = structure.size();
 #ifdef _DEBUG
 	//Errors handling
-	if (structure.size() < 2) {
+	if (layers_num < 2) {
 		std::cerr << "Too small number of layers (at least 2"
 			" needed for input and output layers)!";
 		throw new std::range_error(
@@ -21,21 +24,20 @@ SimpleNetwork::SimpleNetwork(NeuronFunction function,
 	neuron_function = function;
 	func = __NeuronFunctionsRealization::getFunction(function);
 	dfunc = __NeuronFunctionsRealization::getDFunction(function);
-	layers_num = structure.size();
-	new (&this->Structure) vec<size_t>(structure);
+	new (&Structure) vec<size_t>(structure);
 	input_layer_size = Structure[0];
 	output_layer_size = Structure[layers_num - 1];
-	max_layer_size = this->Structure.max_element();
+	max_layer_size = Structure.max_element();
 
 #ifdef _DEBUG
 	srand(0);
 #endif
 
 	new (&Weights) vec<vec<vec<double>>>(layers_num - 1, false);
-	for (int l = 0; l < layers_num - 1; l++) {
+	for (int wl = 0; wl < layers_num - 1; wl++) {
 #ifdef _DEBUG
 		//Errors handling
-		if (this->Structure[l] == 0) {
+		if (Structure[wl] == 0) {
 			std::cerr << "Invalid layer size (the layer must have at"
 				" least 1 neuron)";
 			throw new std::range_error(
@@ -43,13 +45,20 @@ SimpleNetwork::SimpleNetwork(NeuronFunction function,
 				" least 1 neuron)");
 		}
 #endif
-		new (&Weights[l]) vec<vec<double>>(this->Structure[l], false);
-		for (int f = 0; f < this->Structure[l]; f++)
+		new (&Weights[wl]) vec<vec<double>>(Structure[wl], false);
+		for (int f = 0; f < Structure[wl]; f++)
 		{
-			new (&Weights[l][f]) vec<double>(this->Structure[l + 1], false);
-			for (int t = 0; t < this->Structure[l + 1]; t++)
-				Weights[l][f][t] = (double)rand() / RAND_MAX;
+			new (&Weights[wl][f]) vec<double>(Structure[wl + 1], false);
+			for (int t = 0; t < Structure[wl + 1]; t++)
+				Weights[wl][f][t] = (double)rand() / RAND_MAX;
 		}
+	}
+
+	new (&BasisWeights) vec<vec<double>>(layers_num - 1, false);
+	for (int wl = 0; wl < layers_num - 1; wl++) {
+		new (&BasisWeights[wl]) vec<double>(Structure[wl + 1], false);
+		for (int f = 0; f < Structure[wl + 1]; f++)
+			BasisWeights[wl][f] = (double)rand() / RAND_MAX;
 	}
 }
 
@@ -75,7 +84,7 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary)
 		file.read((char*)&layers_num, sizeof(size_t));
 	else file >> layers_num;
 	
-	new (&this->Structure) vec<size_t>(layers_num, false);
+	new (&Structure) vec<size_t>(layers_num, false);
 	//Reading number of neurons in each layer
 	if (is_in_binary)
 		for (int l = 0; l < layers_num; l++)
@@ -84,7 +93,7 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary)
 		file >> Structure[l];
 	input_layer_size = Structure[0];
 	output_layer_size = Structure[layers_num - 1];
-	max_layer_size = this->Structure.max_element();
+	max_layer_size = Structure.max_element();
 
 	//Readinf neuron function name
 	if (is_in_binary)
@@ -95,16 +104,24 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary)
 
 	//Reading the weights data
 	new (&Weights) vec<vec<vec<double>>>(layers_num - 1, false);
-	if (is_in_binary)
+	new (&BasisWeights) vec<vec<double>>(layers_num - 1, false);
+	if (is_in_binary) {
 		for (int wl = 0; wl < layers_num - 1; wl++) {
 			new (&Weights[wl]) vec<vec<double>>(Structure[wl], false);
 			for (int f = 0; f < Structure[wl]; f++) {
-				new (&Weights[wl][f]) vec<double>(Structure[wl+1], false);
+				new (&Weights[wl][f]) vec<double>(Structure[wl + 1], false);
 				for (int t = 0; t < Structure[wl + 1]; t++)
 					file.read((char*)&Weights[wl][f][t], sizeof(double));
 			}
 		}
-	else for (int wl = 0; wl < layers_num - 1; wl++) {
+		for (int wl = 0; wl < layers_num - 1; wl++) {
+			new (&BasisWeights[wl]) vec<double>(Structure[wl + 1], false);
+			for (int f = 0; f < Structure[wl + 1]; f++)
+				file.read((char*)&BasisWeights[wl][f], sizeof(double));
+		}
+	}
+	else {
+		for (int wl = 0; wl < layers_num - 1; wl++) {
 			new (&Weights[wl]) vec<vec<double>>(Structure[wl], false);
 			for (int f = 0; f < Structure[wl]; f++) {
 				new (&Weights[wl][f]) vec<double>(Structure[wl + 1], false);
@@ -112,11 +129,33 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary)
 					file >> Weights[wl][f][t];
 			}
 		}
+		for (int wl = 0; wl < layers_num - 1; wl++) {
+			new (&BasisWeights[wl]) vec<double>(Structure[wl + 1], false);
+			for (int f = 0; f < Structure[wl + 1]; f++)
+				file >> BasisWeights[wl][f];
+		}
+	}
 	file.close();
 }
 
 SimpleNetwork::SimpleNetwork(const char* file_location, bool is_in_binary) :
 	SimpleNetwork(std::string(file_location), is_in_binary) { }
+
+SimpleNetwork::SimpleNetwork(const SimpleNetwork& to_copy)
+{
+	max_layer_size = to_copy.max_layer_size;
+	layers_num = to_copy.layers_num;
+	input_layer_size = to_copy.input_layer_size;
+	output_layer_size = to_copy.output_layer_size;
+
+	neuron_function = to_copy.neuron_function;
+	func = to_copy.func;
+	dfunc = to_copy.dfunc;
+
+	Weights = to_copy.Weights;
+	BasisWeights = to_copy.BasisWeights;
+	Structure = to_copy.Structure;
+}
 
 SimplePropagationResult SimpleNetwork::ForwardPropagation(
 	const vec<double>& input_data) const
@@ -152,7 +191,8 @@ SimplePropagationResult SimpleNetwork::ForwardPropagation(
 		for (int from = 1; from < from_layer_size; from++)
 			ret.z[wl + 1] += Weights[wl][from] * ret.a[wl][from];
 		for (int to = 0; to < to_layer_size; to++)
-			ret.a[wl + 1][to] = func(ret.z[wl + 1][to]);
+			ret.a[wl + 1][to] = func(
+				ret.z[wl + 1][to] + BasisWeights[wl][to]);
 	}
 	return ret;
 }
@@ -177,6 +217,7 @@ SimpleBackwardPropagationResult SimpleNetwork::BackwardPropagation(
 	SimpleBackwardPropagationResult ret;
 	vec<vec<double>> dC_da(layers_num, false);
 	new (&ret.dC_dw) vec<vec<vec<double>>>(layers_num - 1, false);
+	new (&ret.dC_dbw) vec<vec<double>>(layers_num - 1, false);
 	dC_da[layers_num - 1] = (desired_output - res.a[layers_num - 1]) * 2.0;
 	ret.error = 0;
 	for (int i = 0; i < Structure[layers_num - 1]; i++)
@@ -193,6 +234,7 @@ SimpleBackwardPropagationResult SimpleNetwork::BackwardPropagation(
 		buff_dC_dz.resize(to_layer_size);
 		for (int to = 0; to < to_layer_size; to++)
 			buff_dC_dz[to] = dC_da[wl + 1][to] * dfunc(res.z[wl + 1][to]);
+		ret.dC_dbw[wl] = buff_dC_dz;
 		ret.dC_dw[wl] = res.a[wl] & buff_dC_dz;
 		new (&dC_da[wl]) vec<double>(from_layer_size, false);
 		for (int from = 0; from < from_layer_size; from++)
@@ -232,6 +274,10 @@ void SimpleNetwork::SaveToFile(std::string& file_location,
 			for (int f = 0; f < Structure[wl]; f++)
 				for (int t = 0; t < Structure[wl + 1]; t++)
 					file.write((char*)&Weights[wl][f][t], sizeof(double));
+		//Writing basis weights data
+		for (int wl = 0; wl < layers_num - 1; wl++)
+			for (int f = 0; f < Structure[wl + 1]; f++)
+				file.write((char*)&BasisWeights[wl][f], sizeof(double));
 	}
 	else
 	{
@@ -247,6 +293,10 @@ void SimpleNetwork::SaveToFile(std::string& file_location,
 			for (int f = 0; f < Structure[wl]; f++)
 				for (int t = 0; t < Structure[wl + 1]; t++)
 					file << Weights[wl][f][t] << " ";
+		//Writing basis weights data
+		for (int wl = 0; wl < layers_num - 1; wl++)
+			for (int f = 0; f < Structure[wl + 1]; f++)
+				file << BasisWeights[wl][f] << " ";
 	}
 	file.close();
 }
