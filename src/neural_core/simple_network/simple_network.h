@@ -4,7 +4,7 @@
 #include "math/vec.h"
 #include "math/neuron_functions.h"
 
-struct SimplePropagationResult;
+struct SimpleForwardPropagationResult;
 struct SimpleBackwardPropagationResult;
 
 class SimpleNetwork : stringable
@@ -27,6 +27,9 @@ public:
 	vec<vec<double>> BasisWeights;
 	vec<size_t> Structure;
 
+	size_t GetInputLayerSize() const;
+	size_t GetOutputLayerSize() const;
+
 	SimpleNetwork();
 	SimpleNetwork(NeuronFunction function,
 		std::initializer_list<size_t> structure);
@@ -34,14 +37,14 @@ public:
 		std::initializer_list<size_t> structure,
 		const vec<vec<vec<double>>>& weights,
 		const vec<vec<double>>& basis_weights);
-	explicit SimpleNetwork(std::string& file_location, bool is_in_binary);
-	explicit SimpleNetwork(const char* file_location, bool is_in_binary);
+	SimpleNetwork(std::string& file_location, bool is_in_binary);
+	SimpleNetwork(const char* file_location, bool is_in_binary);
 	SimpleNetwork(const SimpleNetwork& to_copy);
 
-	SimplePropagationResult ForwardPropagation(
+	SimpleForwardPropagationResult ForwardPropagation(
 		const vec<double>& input_data) const;
 	SimpleBackwardPropagationResult BackwardPropagation(
-		const SimplePropagationResult& res, 
+		const SimpleForwardPropagationResult& res, 
 		const vec<double>& desired_output) const;
 
 	void SaveToFile(std::string& file_location, 
@@ -50,7 +53,7 @@ public:
 		bool write_in_binary) const;
 };
 
-struct SimplePropagationResult
+struct SimpleForwardPropagationResult
 {
 	/// <summary>
 	/// Network, which result the Structure stores

@@ -12,6 +12,8 @@
 template <typename T>
 class vec : public stringable {
 private:
+    static const double resize_coof;
+	
     T* vec_data;
     size_t vec_array_size;
     size_t vec_size;
@@ -27,6 +29,8 @@ public:
 	//Functions
     size_t size() const;
     void resize(size_t new_size);
+    void push_back(const T& element);
+    void push_back(const vec& elements);
 
     T max_element();
     T sum() const;

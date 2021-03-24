@@ -7,15 +7,20 @@
 #include <exception>
 #include "vec.h"
 
+//#define _DEBUG_VEC
 #ifdef _DEBUG_VEC
 #define DEBUG_MSG(msg) std::cout<<msg<<"\n"
 #else
 #define DEBUG_MSG(msg)
 #endif
 
+template<typename T>
+const double vec<T>::resize_coof = 1.5;
+
 // Constructors :
 template<typename T>
 vec<T>::vec(size_t size, bool fill_zeros) {
+    DEBUG_MSG("VEC creation call");
     vec_data = new T[size];
     vec_size = size;
     vec_array_size = size;
@@ -25,6 +30,7 @@ vec<T>::vec(size_t size, bool fill_zeros) {
 template<typename T>
 vec<T>::vec(const std::initializer_list<T> values) :
 vec(values.size(), false) {
+    DEBUG_MSG("VEC creation call");
     std::copy(values.begin(), values.end(), vec_data);
 }
 template<typename T>
@@ -60,13 +66,30 @@ void vec<T>::resize(size_t new_size)
 {
 	if(new_size > vec_array_size)
 	{
-        T* new_data = new T[vec_size];
+        vec_array_size = new_size * resize_coof;
+        T* new_data = new T[vec_array_size];
         std::copy(vec_data, vec_data + vec_size, new_data);
         delete[] vec_data;
         vec_data = new_data;
-        vec_array_size = new_size;
 	}
     vec_size = new_size;
+}
+
+template <typename T>
+void vec<T>::push_back(const T& element)
+{
+    resize(vec_size + 1);
+    vec_data[vec_size - 1] = element;
+}
+
+template <typename T>
+void vec<T>::push_back(const vec& elements)
+{
+    int buff = vec_size;
+    resize(vec_size + elements.vec_size);
+    std::copy(elements.vec_data, 
+        elements.vec_data + elements.vec_size,
+        vec_data + buff);
 }
 
 template <typename T>

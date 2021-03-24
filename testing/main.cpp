@@ -1,73 +1,30 @@
 #include <iostream>
 #include "math/vec.h"
 #include "neural_core/simple_network/simple_network.h"
+#include "neural_core/simple_network/simple_trainer.h"
 
 using namespace std;
 
-SimpleNetwork network(
-	Sigmoid, { 2, 2, 1 });
-double input_data[4][2] = {
-	{0, 0}, {1, 0},
-	{0, 1}, {1, 1}
-};
-double output_data[4][1] = {
-	{0}, {1}, {1}, {0}
-};
-double c = 1, bc = 0.005;
-int iters_num = 100;
-
-double train_iter()
-{
-	double error_av = 0;
-	for(int i = 0; i < iters_num; i++)
-	{
-		int test = rand() % 4;
-		SimplePropagationResult forward = network.ForwardPropagation(
-			{ 2, input_data[test] });
-		SimpleBackwardPropagationResult backward =
-			network.BackwardPropagation(forward, 
-				{ 1, output_data[test] });
-		error_av += backward.error;
-		network.Weights += backward.dC_dw * c;
-		network.BasisWeights += backward.dC_dbw * bc;
-	}
-	return error_av / iters_num;
-}
+///Tests location : ../../../testing/tests/
 
 int main(){
-	SimpleNetwork best_network;
-	double min_err = DBL_MAX, buff;
-	for (int i = 0; i < 1000; i++)
+	//SimpleNetwork network("../../../testing/tests/xor/network_structure.b", true);
+	SimpleNetwork network(Sigmoid, {2, 2, 1});
+	SimpleTrainer::SimpleTrainData train_data(
+		"../../../testing/tests/xor/train_data.b", true);
+	SimpleTrainer trainer(&network, &train_data, 10, 0.05, 100);
+	trainer.TrainNetwork(100);
+	size_t DataSize = train_data.GetSize();
+	size_t LayersNumber = network.Structure.size();
+	
+	for (int i = 0; i < DataSize; i++)
 	{
-		buff = train_iter();
-		if(min_err > buff)
-		{
-			min_err = buff;
-			best_network = network;
-			cout << "New min error : " << min_err << "\n";
-		}
+		vec<double>* input = &train_data.GetInputData(i);
+		cout << *input << " - ";
+		SimpleForwardPropagationResult res =
+			network.ForwardPropagation(*input);
+		cout << res.a[LayersNumber - 1] << "\n";
 	}
-
-	network = best_network;
-	for(int i = 0; i < 4; i++)
-	{
-		vec<double> input = { 2, input_data[i] };
-		cout << input << " - ";
-		SimplePropagationResult res = network.ForwardPropagation(input);
-		cout << res.a[2] << "\n";
-	}
-	cout << network.BasisWeights << "\n";
-	network.SaveToFile("D:\\buff\\test", false);
-
-	/*SimpleNetwork test_read("D:\\buff\\test", true);
-	cout << test_read.Weights<<"\n";
-	for (int i = 0; i < 4; i++)
-	{
-		vec<double> input = { 2, input_data[i] };
-		cout << input << " - ";
-		SimplePropagationResult res = test_read.ForwardPropagation(input);
-		cout << res.a[2] << "\n";
-	}*/
 	
     return 0;
 }
