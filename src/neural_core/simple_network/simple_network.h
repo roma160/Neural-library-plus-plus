@@ -3,11 +3,13 @@
 
 #include "math/vec.h"
 #include "math/neuron_functions.h"
+#include "math/random_element.h"
 
 struct SimpleForwardPropagationResult;
 struct SimpleBackwardPropagationResult;
+enum SimpleNetworkFillingType : int;
 
-class SimpleNetwork : stringable
+class SimpleNetwork : stringable, RandomElement<>
 {
 private:
 	size_t max_layer_size;
@@ -18,6 +20,8 @@ private:
 	NeuronFunction neuron_function;
 	double (*func)(double);
 	double (*dfunc)(double);
+
+	void fill_weights(SimpleNetworkFillingType filling_type);
 	
 public:
 	vec<vec<vec<double>>> Weights;
@@ -32,7 +36,8 @@ public:
 
 	SimpleNetwork();
 	SimpleNetwork(NeuronFunction function,
-		std::initializer_list<size_t> structure);
+	    std::initializer_list<size_t> structure,
+		SimpleNetworkFillingType filling_type);
 	SimpleNetwork(NeuronFunction function,
 		std::initializer_list<size_t> structure,
 		const vec<vec<vec<double>>>& weights,
@@ -43,6 +48,9 @@ public:
 
 	SimpleForwardPropagationResult ForwardPropagation(
 		const vec<double>& input_data) const;
+	vec<double> ComputeNetworkAnswer(
+		const vec<double>& input_data) const;
+	
 	SimpleBackwardPropagationResult BackwardPropagation(
 		const SimpleForwardPropagationResult& res, 
 		const vec<double>& desired_output) const;
@@ -92,6 +100,22 @@ struct SimpleBackwardPropagationResult
 	vec<vec<double>> dC_dbw;
 	
 	double error;
+};
+
+enum SimpleNetworkFillingType
+{
+	/// <summary>
+	/// Sets all weights to value of zero
+	/// </summary>
+	Zeros,
+	/// <summary>
+	/// Sets each weight value to random double from -1 to 1
+	/// </summary>
+	RndNonNormalized,
+	/// <summary>
+	/// Sets each weight value to random double from -1 to 1, divided by previous layer size.
+	/// </summary>
+	RndNormalised
 };
 
 #endif //NEURALNETWORKTRY_SIMPLENETWORK_H

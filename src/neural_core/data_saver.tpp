@@ -27,8 +27,7 @@ void DataSave::SaveBinary(std::ofstream& stream,
 	size_t size = data.size();
 	if (write_size)
 		stream.write((char*)&size, sizeof(size_t));
-	for (size_t i = 0; i < size; i++)
-		stream.write((char*)&data[i], sizeof(T));
+	stream.write((char*) data.p(), sizeof(T) * size);
 }
 
 
@@ -65,15 +64,13 @@ void DataRead::ReadBinaryWithSize(
 	size_t size;
 	stream.read((char*)&size, sizeof(size_t));
 	new (data) vec<T>(size, false);
-	for (size_t i = 0; i < size; i++)
-		stream.read((char*)&(*data)[i], sizeof(T));
+	stream.read((char*) data->p(), sizeof(T) * size);
 }
 
 template <typename T>
 void DataRead::ReadBinary(
 	std::ifstream& stream, vec<T>& data)
 {
-	size_t size = data.size();
-	for (size_t i = 0; i < size; i++)
-		stream.read((char*)&data[i], sizeof(T));
+	stream.read((char*) data.p(), 
+		sizeof(T) * data.size());
 }

@@ -33,12 +33,23 @@ public:
     void push_back(const vec& elements);
 
     T max_element();
+    size_t max_element_ind();
+    T min_element();
+    size_t min_element_ind();
     T sum() const;
+
+    /// <summary>
+    /// Function to get pointer to the wrapped array.
+    /// </summary>
+    /// <returns>
+    /// Pointer to the first element of the vec.
+    /// </returns>
+    T* p() const;
 
     //Operators override
     T& operator[](size_t i);
     T& operator[](size_t i) const;
-    vec& operator=(vec b);
+    vec& operator=(const vec& b);
 
 	//Math operators
     template<typename T>
