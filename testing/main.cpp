@@ -95,8 +95,10 @@ int main(){
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
 	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
 #endif
-	
-	//mnist_test();
-	xor_test();
+
+	time_point begin = get_time_point();
+	mnist_test();
+	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());
+	//xor_test();
 	return 0;
 }

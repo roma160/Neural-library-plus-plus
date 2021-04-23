@@ -12,7 +12,7 @@ private:
 	
 public:
 	/// <summary>
-	/// Cooficients, that determine the speed of learning
+	/// Coefficients, that determine the speed of learning
 	/// </summary>
 	double C, Cb;
 	/// <summary>

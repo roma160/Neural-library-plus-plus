@@ -337,13 +337,9 @@ vec<T> &operator*=(vec<T> &a, const G& b)
 template <typename T>
 vec<T> &operator*=(vec<T> &a, const vec<T> &b)
 {
-    size_t new_size = std::min(a.vec_size, b.vec_size);
-    for (size_t i = 0; i < new_size; i++)
+    a.vec_size = std::min(a.vec_size, b.vec_size);
+    for (size_t i = 0; i < a.vec_size; i++)
         a.vec_data[i] *= b.vec_data[i];
-    T* new_data = new T[new_size];
-    std::copy(a.vec_data, a.vec_data + new_size, new_data);
-    delete[] a.vec_data;
-    a.vec_data = new_data;
     return a;
 }
 
@@ -377,13 +373,9 @@ vec<T> &operator/=(vec<T> &a, const G& b)
 template <typename T>
 vec<T> &operator/=(vec<T> &a, const vec<T> &b)
 {
-    size_t ret_size = std::min(a.vec_size, b.vec_size);
-    for (size_t i = 0; i < ret_size; i++)
+    a.vec_size = std::min(a.vec_size, b.vec_size);
+    for (size_t i = 0; i < a.vec_size; i++)
         a.vec_data[i] /= b.vec_data[i];
-    T* new_data = new T[ret_size];
-    std::copy(a.vec_data, a.vec_data + ret_size, new_data);
-    delete[] a.vec_data;
-    a.vec_data = new_data;
     return a;
 }
 

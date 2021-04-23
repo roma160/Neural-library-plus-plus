@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(NeuralNetworkTry)
 set(CMAKE_CXX_STANDARD 14)
 
-file(GLOB_RECURSE SOURCE_FILES "src/*.tpp" "src/*.cpp")
+file("GLOB_RECURSE" "SOURCE_FILES" "src/*.tpp" "src/*.cpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 include_directories("./src")
