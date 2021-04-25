@@ -5,9 +5,9 @@
 #include <iostream>
 #include <chrono>
 #include "math/vec.h"
-#include "neural_core/simple_network/simple_network.h"
-#include "neural_core/simple_network/simple_trainer.h"
-#include "neural_core/simple_network/simple_data.h"
+#include "neural_core/simple_network.h"
+#include "neural_core/trainer/simple_trainer.h"
+#include "neural_core/simple_data.h"
 
 using namespace std;
 
@@ -96,9 +96,14 @@ int main(){
 	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
 #endif
 
-	time_point begin = get_time_point();
+	vec<vec<vec<int>>> v(1, false);
+	v[0] = vec<vec<int>>(2, false);
+	v[0][0] = vec<int>(3, false);
+	vec<vec<vec<vec<int>>>> shape_copy = vec<vec<vec<vec<int>>>>::create_from_shape(vec<size_t>{2, 2, 3, 4});
+	cout << shape_copy;
+	/*time_point begin = get_time_point();
 	mnist_test();
-	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());
+	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());*/
 	//xor_test();
 	return 0;
 }

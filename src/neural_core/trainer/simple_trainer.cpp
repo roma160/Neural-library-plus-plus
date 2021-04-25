@@ -5,7 +5,7 @@ SimpleTrainer::SimpleTrainer(SimpleNetwork* network, I_SimpleData* train_data) :
 	SimpleTrainer(network, train_data, 1, 1, 100) { }
 
 SimpleTrainer::SimpleTrainer(SimpleNetwork* network, I_SimpleData* train_data,
-	double c, double cb, int iters) : RandomElement()
+	double c, double cb, int iters) : NetworkTrainer(network, train_data)
 {
 #ifdef _DEBUG
 	if(train_data->GetInputLayerSize() != network->GetInputLayerSize())
@@ -21,8 +21,6 @@ SimpleTrainer::SimpleTrainer(SimpleNetwork* network, I_SimpleData* train_data,
 			"Sizes of the network and data output layer, don`t match!");
 	}
 #endif
-	Network = network;
-	TrainData = train_data;
 	C = c;
 	Cb = cb;
 	Iterations = iters;

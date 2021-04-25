@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
+#TODO: rename all names to lowercase to make CLI port
 project(NeuralNetworkTry)
 set(CMAKE_CXX_STANDARD 14)
 

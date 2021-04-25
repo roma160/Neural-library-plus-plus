@@ -16,6 +16,8 @@
 
 template<typename T>
 const double vec<T>::resize_coof = 1.5;
+template<typename T>
+const char* vec<T>::def_tab = "   ";
 
 // Constructors :
 template<typename T>
@@ -60,6 +62,23 @@ vec<T>::~vec() {
 template <typename T>
 size_t vec<T>::size() const { return vec_size; }
 
+
+template<typename T>
+void _get_shape(T& v, vec<size_t>* res){}
+template<typename T>
+void _get_shape(vec<T>& v, vec<size_t>* res)
+{
+    res->push_back(v.vec_size);
+    _get_shape(v.vec_data[0], res);
+}
+template <typename T>
+vec<size_t> vec<T>::get_shape() const
+{
+    vec<size_t> ret({vec_size});
+    _get_shape(vec_data[0], &ret);
+    return ret;
+}
+
 template <typename T>
 void vec<T>::resize(size_t new_size)
 {
@@ -72,6 +91,22 @@ void vec<T>::resize(size_t new_size)
         vec_data = new_data;
 	}
     vec_size = new_size;
+}
+
+template <typename T>
+void vec<T>::reverse(int from, int to)
+{
+    if (to == -1) to = vec_size;
+#ifdef _DEBUG_VEC
+	if(to < from){
+		std::stringstream ss;
+    	ss << "You\'ve tried to reverse array with invalid";
+    	ss << "from(" << from << ") and to(" << to << ") arguments!";
+    	std::cerr << ss.str();
+    	throw std::out_of_range(ss.str());
+	}
+#endif
+    std::reverse(vec_data + from, vec_data + to);
 }
 
 template <typename T>
@@ -89,6 +124,49 @@ void vec<T>::push_back(const vec& elements)
     std::copy(elements.vec_data, 
         elements.vec_data + elements.vec_size,
         vec_data + buff);
+}
+
+template<typename T>
+void _fill_vec(const vec<vec<T>*>& to_fill, const vec<size_t>* shape, size_t ind)
+{
+    size_t to_fill_size = to_fill.size(),
+        prev_shape = shape->vec_data[ind - 1],
+        to_fill_shape = shape->vec_data[ind];
+    vec<T>* to_fill_p;
+    for (size_t i = 0; i < to_fill_size; i++) {
+        to_fill_p = to_fill.vec_data[i];
+        for (size_t j = 0; j < prev_shape; j++, to_fill_p++)
+            new (to_fill_p) vec<T>(to_fill_shape, false);
+    }
+}
+template<typename T>
+void _fill_vec(const vec<vec<vec<T>>*>& to_fill, const vec<size_t>* shape, size_t ind)
+{
+    size_t to_fill_size = to_fill.size(),
+        prev_shape = shape->vec_data[ind - 1],
+        to_fill_shape = shape->vec_data[ind],
+        next_to_fill_ind = 0;
+    vec<vec<T>*> next_to_fill(to_fill_size * prev_shape, false);
+    vec<vec<T>>* to_fill_p;
+    for (size_t i = 0; i < to_fill_size; i++) {
+        to_fill_p = to_fill.vec_data[i];
+        for (size_t j = 0; j < prev_shape; j++, to_fill_p++) {
+            new (to_fill_p) vec<vec<T>>(to_fill_shape, false);
+            next_to_fill.vec_data[next_to_fill_ind++] = to_fill_p->vec_data;
+        }
+    }
+    if (ind < shape->size())
+        _fill_vec(next_to_fill, shape, ind + 1);
+}
+template <typename T>
+vec<T> vec<T>::create_from_shape(const vec<size_t>& shape_vec)
+{
+    size_t size = shape_vec[0];
+    vec<T> ret(size, false);
+    vec<T*> to_fill({ret.vec_data});
+	if(shape_vec.size() > 1)
+		_fill_vec(to_fill, &shape_vec, 1);
+    return ret;
 }
 
 template <typename T>
@@ -380,15 +458,44 @@ vec<T> &operator/=(vec<T> &a, const vec<T> &b)
 }
 
 template<typename T>
-std::string vec<T>::to_string() const {
+std::string _vec_to_string(const vec<T>* v, const vec<size_t>* shape = NULL, const std::string* depth = NULL)
+{
     std::stringstream ss;
-    ss<<"v("<<vec_size<<"){ ";
-    if(vec_size >= 1)
-        ss<<vec_data[0];
-    for(size_t i = 1; i < vec_size; i++)
-        ss<<", "<<vec_data[i];
-    ss<<" }";
+    ss << "v(" << v->vec_size << "){ ";
+    if (v->vec_size > 0) ss << v->vec_data[0];
+    for (size_t i = 1; i < v->vec_size; i++)
+        ss << ", " << v->vec_data[i];
+    ss << " }";
     return ss.str();
+}
+template<typename T>
+std::string _vec_to_string(const vec<vec<T>>* v, const vec<size_t>* shape, const std::string* depth)
+{
+    std::stringstream ss;
+    ss << "v(" << v->vec_size << "){ ";
+    if (v->vec_size > 0) {
+        depth++;
+        ss << *depth << _vec_to_string(&v->vec_data[0], shape, depth);
+        for (size_t i = 1; i < v->vec_size; i++)
+            ss << ',' << *depth <<
+				_vec_to_string(&v->vec_data[i], shape, depth);
+        depth--;
+        ss << *depth << "}";
+    }
+    else ss << " }";
+    return ss.str();
+}
+template<typename T>
+std::string vec<T>::to_string() const {
+    vec<size_t> shape = get_shape();
+    size_t shape_size = shape.size();
+    if (shape_size == 1)
+        return _vec_to_string(this);
+    std::string* depth_arr = new std::string[shape_size + 1];
+    depth_arr[0] = "\n";
+    for (size_t i = 1; i <= shape_size; i++)
+        depth_arr[i] = depth_arr[i - 1] + def_tab;
+    return _vec_to_string(this, &shape, depth_arr);
 }
 
 template <typename T>

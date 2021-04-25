@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
+//TODO: get rid of the l and r values!
 template <typename T>
 class vec : public stringable {
 private:
@@ -18,6 +19,20 @@ private:
     size_t vec_array_size;
     size_t vec_size;
 
+    template<typename T>
+    friend void _get_shape(vec<T>& v, vec<size_t>* res);
+
+    template<typename T>
+    friend void _fill_vec(const vec<vec<T>*>& to_fill, const vec<size_t>* shape, size_t ind);
+    template<typename T>
+    friend void _fill_vec(const vec<vec<vec<T>>*>& to_fill, const vec<size_t>* shape, size_t ind);
+
+    static const char* def_tab;
+    template<typename T>
+    friend std::string _vec_to_string(const vec<T>* v, const vec<size_t>* shape, const std::string* depth);
+    template<typename T>
+    friend std::string _vec_to_string(const vec<vec<T>>* v, const vec<size_t>* shape, const std::string* depth);
+	
 public:
     vec();
     vec(size_t size, bool fill_zeros);
@@ -28,15 +43,27 @@ public:
 
 	//Functions
     size_t size() const;
+    vec<size_t> get_shape() const;
+	
     void resize(size_t new_size);
+    void reverse(int from = 0, int to = -1);
     void push_back(const T& element);
     void push_back(const vec& elements);
 
+	//TODO: create method `create_same_shape`
+    /// <summary>
+    /// Makes new vector with the shape of shape_vec
+    /// </summary>
+    static vec create_from_shape(const vec<size_t>& shape_vec);
+	
     T max_element();
     size_t max_element_ind();
     T min_element();
     size_t min_element_ind();
     T sum() const;
+
+    vec square();
+    vec sqrt();
 
     /// <summary>
     /// Function to get pointer to the wrapped array.

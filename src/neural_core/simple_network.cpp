@@ -1,4 +1,4 @@
-#include <neural_core/simple_network/simple_network.h>
+#include <neural_core/simple_network.h>
 #include <neural_core/data_saver.h>
 #include <stdexcept>
 #include <sstream>
