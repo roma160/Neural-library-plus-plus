@@ -40,7 +40,7 @@ void DataRead::ReadWithSize(std::ifstream& stream, vec<T>* data)
 {
 	size_t size;
 	stream >> size;
-	new (data) vec<T>(size, false);
+	*data = vec<T>(size, false);
 	for (size_t i = 0; i < size; i++)
 		stream >> (*data)[i];
 }
@@ -63,7 +63,7 @@ void DataRead::ReadBinaryWithSize(
 {
 	size_t size;
 	stream.read((char*)&size, sizeof(size_t));
-	new (data) vec<T>(size, false);
+	*data = vec<T>(size, false);
 	stream.read((char*) data->p(), sizeof(T) * size);
 }
 

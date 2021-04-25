@@ -26,11 +26,11 @@ protected:
 		if(!is_created)
 		{
 			is_created = true;
-			new (&u_normalized_distribution) uniform_real_distribution<>(0, 1);
-			new (&normalized_distribution) uniform_real_distribution<>(-1, 1);
-			new (&int_distribution) uniform_int_distribution<unsigned long long int>();
+			u_normalized_distribution = uniform_real_distribution<>(0, 1);
+			normalized_distribution = uniform_real_distribution<>(-1, 1);
+			int_distribution = uniform_int_distribution<unsigned long long int>();
 #ifndef SAME_RANDOM
-			new (&random_engine) default_random_engine(
+			random_engine = default_random_engine(
 				random_device{}());
 #endif
 		}

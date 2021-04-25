@@ -44,6 +44,11 @@ public:
 		cout << number << " destructor called\n";
 	}
 
+	void operator=(test_copy& to_copy)
+	{
+		cout << "Copy operator called!\n";
+	}
+
 	static test_copy& func()
 	{
 		return test_copy(5);
@@ -58,9 +63,9 @@ void xor_test()
 	cout << network.Weights << "\n";
 	SimpleData train_data("../../../testing/tests/xor/train_data.b", true);
 	
-	double a = 2, b = 0.01;
+	double a = 5, b = 0.2;
 	//cin >> a >> b;
-	SimpleTrainer trainer(&network, &train_data, a, b, 1);
+	SimpleTrainer trainer(&network, &train_data, a, b, 2);
 	trainer.TrainNetwork(1000);
 
 	for (int i = 0; i < 4; i++)
@@ -75,7 +80,7 @@ void mnist_test()
 	
 	SimpleNetwork network(Sigmoid, { 784, 128, 10 }, RndNormalised);
 	SimpleBinStreamData train_data("./res.b");
-	SimpleTrainer trainer(&network, &train_data, 1, 1, 20);
+	SimpleTrainer trainer(&network, &train_data, 1.1, 1, 20);
 	trainer.TrainNetwork(5000, &cout, 100);
 
 	for (int i = 0; i < 20; i++)
@@ -96,14 +101,22 @@ int main(){
 	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
 #endif
 
-	vec<vec<vec<int>>> v(1, false);
+	/*vec<vec<vec<int>>> v(1, false);
 	v[0] = vec<vec<int>>(2, false);
 	v[0][0] = vec<int>(3, false);
 	vec<vec<vec<vec<int>>>> shape_copy = vec<vec<vec<vec<int>>>>::create_from_shape(vec<size_t>{2, 2, 3, 4});
-	cout << shape_copy;
-	/*time_point begin = get_time_point();
-	mnist_test();
-	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());*/
+	cout << shape_copy;*/
+	time_point begin = get_time_point();
+	//mnist_test();
+	xor_test();
+	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());
 	//xor_test();
+
+	/*vec<vec<int>> a = { {1, 2}, {3, 4} };
+	cout << "a : " << a<<"\n";
+	vec<vec<int>> b = a;
+	b[0][0] = b[1][1];
+	cout << "a : " << a << "\n";
+	cout << "b : " << b << "\n";*/
 	return 0;
 }

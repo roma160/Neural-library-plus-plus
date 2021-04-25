@@ -9,7 +9,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
-//TODO: get rid of the l and r values!
+//TODO: override operator>>!
 template <typename T>
 class vec : public stringable {
 private:
@@ -32,13 +32,19 @@ private:
     friend std::string _vec_to_string(const vec<T>* v, const vec<size_t>* shape, const std::string* depth);
     template<typename T>
     friend std::string _vec_to_string(const vec<vec<T>>* v, const vec<size_t>* shape, const std::string* depth);
+
+    template<typename T>
+    friend void _vec_copy(vec<T>* to, const vec<T>* from);
+    template<typename T>
+    friend void _vec_copy(vec<vec<T>>* to, const vec<vec<T>>* from);
 	
 public:
     vec();
     vec(size_t size, bool fill_zeros);
-    vec(std::initializer_list<T> values);
     vec(size_t size, T* values);
-    vec(const vec &to_copy);
+    vec(std::initializer_list<T> values);
+    vec(const vec& to_copy);
+    vec(vec&& to_move) noexcept;
     ~vec();
 
 	//Functions
@@ -77,6 +83,7 @@ public:
     T& operator[](size_t i);
     T& operator[](size_t i) const;
     vec& operator=(const vec& b);
+    vec& operator=(vec&& b) noexcept;
 
 	//Math operators
     template<typename T>

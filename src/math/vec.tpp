@@ -21,6 +21,13 @@ const char* vec<T>::def_tab = "   ";
 
 // Constructors :
 template<typename T>
+vec<T>::vec()
+{
+    vec_data = NULL;
+    vec_size = 0;
+    vec_array_size = 0;
+}
+template<typename T>
 vec<T>::vec(size_t size, bool fill_zeros) {
     DEBUG_MSG("VEC creation call");
     vec_data = new T[size];
@@ -30,28 +37,45 @@ vec<T>::vec(size_t size, bool fill_zeros) {
         std::fill(vec_data, vec_data + vec_size, T());
 }
 template<typename T>
+vec<T>::vec(size_t size, T* values) : vec(size, false) {
+    std::copy(values, values + size, vec_data);
+}
+template<typename T>
 vec<T>::vec(const std::initializer_list<T> values) :
 	vec(values.size(), false) {
     std::copy(values.begin(), values.end(), vec_data);
 }
-template<typename T>
-vec<T>::vec(size_t size, T *values) : vec(size, false) {
-    std::copy(values, values + size, vec_data);
-}
 
 template<typename T>
-vec<T>::vec(const vec &to_copy) : vec(to_copy.vec_size, false) {
-    DEBUG_MSG("VEC.tpp : copy to the previously contucted |");
-    std::copy(to_copy.vec_data,
-            to_copy.vec_data + vec_size,
-            vec_data);
+void _vec_copy(vec<T>* to, const vec<T>* from)
+{
+    std::copy(from->vec_data,
+        from->vec_data + to->vec_size,
+        to->vec_data);
 }
 template<typename T>
-vec<T>::vec()
+void _vec_copy(vec<vec<T>>* to, const vec<vec<T>>* from)
 {
-    vec_data = NULL;
-    vec_size = 0;
-    vec_array_size = 0;
+    for (size_t i = 0; i < to->vec_size; i++)
+        to->vec_data[i] = vec<T>(from->vec_data[i]);
+}
+template<typename T>
+vec<T>::vec(const vec &to_copy) : vec(to_copy.vec_size, false) {
+    DEBUG_MSG("VEC.tpp : copy constructor");
+    _vec_copy(this, &to_copy);
+}
+
+template <typename T>
+vec<T>::vec(vec&& to_move) noexcept
+{
+    DEBUG_MSG("VEC.tpp : move constructor");
+    vec_array_size = to_move.vec_array_size;
+    vec_size = to_move.vec_size;
+    vec_data = to_move.vec_data;
+
+    to_move.vec_data = NULL;
+    to_move.vec_array_size = 0;
+    to_move.vec_size = 0;
 }
 template<typename T>
 vec<T>::~vec() {
@@ -136,7 +160,7 @@ void _fill_vec(const vec<vec<T>*>& to_fill, const vec<size_t>* shape, size_t ind
     for (size_t i = 0; i < to_fill_size; i++) {
         to_fill_p = to_fill.vec_data[i];
         for (size_t j = 0; j < prev_shape; j++, to_fill_p++)
-            new (to_fill_p) vec<T>(to_fill_shape, false);
+            *to_fill_p = vec<T>(to_fill_shape, false);
     }
 }
 template<typename T>
@@ -151,7 +175,7 @@ void _fill_vec(const vec<vec<vec<T>>*>& to_fill, const vec<size_t>* shape, size_
     for (size_t i = 0; i < to_fill_size; i++) {
         to_fill_p = to_fill.vec_data[i];
         for (size_t j = 0; j < prev_shape; j++, to_fill_p++) {
-            new (to_fill_p) vec<vec<T>>(to_fill_shape, false);
+            *to_fill_p = vec<vec<T>>(to_fill_shape, false);
             next_to_fill.vec_data[next_to_fill_ind++] = to_fill_p->vec_data;
         }
     }
@@ -261,18 +285,33 @@ T& vec<T>::operator[](size_t i) const
 
 template<typename T>
 vec<T>& vec<T>::operator=(const vec& b) {
-    DEBUG_MSG("The VEC.h assigment operator call");
-    vec_size = b.vec_size;
-	
+    DEBUG_MSG("The VEC.h copy operator call");
     if (vec_data == b.vec_data)
         return *this;
 	
-    delete[](vec_data);
-    vec_data = new T[vec_size];
+    delete[] vec_data;
+    vec_size = b.vec_size;
     vec_array_size = vec_size;
-    std::copy(b.vec_data,
-            b.vec_data + vec_size,
-            vec_data);
+    vec_data = new T[vec_size];
+    _vec_copy(this, &b);
+    return *this;
+}
+
+template <typename T>
+vec<T>& vec<T>::operator=(vec&& b) noexcept
+{
+    DEBUG_MSG("The VEC.h move operator call");
+    if (vec_data == b.vec_data)
+        return *this;
+	
+    delete[] vec_data;
+    vec_array_size = b.vec_array_size;
+    vec_size = b.vec_size;
+    vec_data = b.vec_data;
+
+    b.vec_data = NULL;
+    b.vec_array_size = 0;
+    b.vec_size = 0;
     return *this;
 }
 
@@ -504,7 +543,7 @@ vec<vec<T>> operator&(vec<T> &a, vec<T> &b)
     vec<vec<T>> ret(a.vec_size, false);
 	for(size_t a_i = 0; a_i < a.vec_size; a_i++)
 	{
-        new (ret.vec_data + a_i) vec<T>(b.vec_size, false);
+        ret.vec_data[a_i] = vec<T>(b.vec_size, false);
         for (size_t b_i = 0; b_i < b.vec_size; b_i++)
             ret.vec_data[a_i].vec_data[b_i] =
             a.vec_data[a_i] * b.vec_data[b_i];

@@ -15,8 +15,8 @@ SimpleData::SimpleData(
 	InputLayerSize = input_layer_size;
 	OutputLayerSize = output_layer_size;
 	DataSize = 0;
-	new (&InputData) vec<vec<double>>(0, false);
-	new (&OutputData) vec<vec<double>>(0, false);
+	InputData = vec<vec<double>>(0, false);
+	OutputData = vec<vec<double>>(0, false);
 }
 
 SimpleData::SimpleData(
@@ -26,12 +26,12 @@ SimpleData::SimpleData(
 	InputLayerSize = input_layer_size;
 	OutputLayerSize = output_layer_size;
 	DataSize = data_size;
-	new (&InputData) vec<vec<double>>(DataSize, false);
-	new (&OutputData) vec<vec<double>>(DataSize, false);
+	InputData = vec<vec<double>>(DataSize, false);
+	OutputData = vec<vec<double>>(DataSize, false);
 	for (size_t i = 0; i < DataSize; i++)
 	{
-		new (&InputData[i]) vec<double>(InputLayerSize, input_data[i]);
-		new (&OutputData[i]) vec<double>(OutputLayerSize, output_data[i]);
+		InputData[i] = vec<double>(InputLayerSize, input_data[i]);
+		OutputData[i] = vec<double>(OutputLayerSize, output_data[i]);
 	}
 }
 
@@ -40,9 +40,9 @@ SimpleData::SimpleData(
 {
 	std::ifstream file;
 	if (is_in_binary)
-		new (&file) std::ifstream(file_location,
+		file = std::ifstream(file_location,
 			std::ios::binary | std::ios::in);
-	else new (&file) std::ifstream(file_location,
+	else file = std::ifstream(file_location,
 		std::ios::in);
 	if (!file)
 	{
@@ -58,13 +58,13 @@ SimpleData::SimpleData(
 		DataRead::ReadBinary(file, InputLayerSize);
 		DataRead::ReadBinary(file, OutputLayerSize);
 		DataRead::ReadBinary(file, DataSize);
-		new (&InputData) vec<vec<double>>(DataSize, false);
-		new (&OutputData) vec<vec<double>>(DataSize, false);
+		InputData = vec<vec<double>>(DataSize, false);
+		OutputData = vec<vec<double>>(DataSize, false);
 		for (size_t i = 0; i < DataSize; i++)
 		{
-			new (&InputData[i]) vec<double>(InputLayerSize, false);
+			InputData[i] = vec<double>(InputLayerSize, false);
 			DataRead::ReadBinary(file, InputData[i]);
-			new (&OutputData[i]) vec<double>(OutputLayerSize, false);
+			OutputData[i] = vec<double>(OutputLayerSize, false);
 			DataRead::ReadBinary(file, OutputData[i]);
 		}
 	}
@@ -73,13 +73,13 @@ SimpleData::SimpleData(
 		DataRead::Read(file, InputLayerSize);
 		DataRead::Read(file, OutputLayerSize);
 		DataRead::Read(file, DataSize);
-		new (&InputData) vec<vec<double>>(DataSize, false);
-		new (&OutputData) vec<vec<double>>(DataSize, false);
+		InputData = vec<vec<double>>(DataSize, false);
+		OutputData = vec<vec<double>>(DataSize, false);
 		for (size_t i = 0; i < DataSize; i++)
 		{
-			new (&InputData[i]) vec<double>(InputLayerSize, false);
+			InputData[i] = vec<double>(InputLayerSize, false);
 			DataRead::Read(file, InputData[i]);
-			new (&OutputData[i]) vec<double>(OutputLayerSize, false);
+			OutputData[i] = vec<double>(OutputLayerSize, false);
 			DataRead::Read(file, OutputData[i]);
 		}
 	}
@@ -147,9 +147,9 @@ void SimpleData::SaveData(
 {
 	std::ofstream file;
 	if (write_in_binary)
-		new (&file) std::ofstream(file_location,
+		file = std::ofstream(file_location,
 			std::ios::binary | std::ios::out);
-	else new (&file) std::ofstream(file_location,
+	else file = std::ofstream(file_location,
 		std::ios::out);
 	if (!file)
 	{
@@ -201,7 +201,7 @@ void SimpleBinStreamData::add_to_buffer(size_t index)
 SimpleBinStreamData::SimpleBinStreamData(std::string file_name, int threads_num)
 {
 	FileName = std::move(file_name);
-	new (&Stream) std::ifstream(FileName,
+	Stream = std::ifstream(FileName,
 		std::ios::binary | std::ios::in);
 	if (!Stream)
 	{
@@ -226,8 +226,8 @@ SimpleBinStreamData::SimpleBinStreamData(std::string file_name, int threads_num)
 	Buffer = new BufferMember[BufferSize];
 	for (int i = 0; i < BufferSize; i++)
 	{
-		new (&Buffer[i].Input) vec<double>(InputLayerSize, false);
-		new (&Buffer[i].Output) vec<double>(OutputLayerSize, false);
+		Buffer[i].Input = vec<double>(InputLayerSize, false);
+		Buffer[i].Output = vec<double>(OutputLayerSize, false);
 	}
 }
 
