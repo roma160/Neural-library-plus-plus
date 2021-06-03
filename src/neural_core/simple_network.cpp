@@ -3,10 +3,13 @@
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
+#include <string>
 #include <iostream>
 
-void SimpleNetwork::fill_weights(
-	SimpleNetworkFillingType filling_type)
+using namespace std;
+using namespace NNL;
+
+void SimpleNetwork::fill_weights(SimpleNetworkFillingType filling_type)
 {
 	size_t from_layer_size, to_layer_size = Structure[0];
 	switch (filling_type)
@@ -76,14 +79,14 @@ void SimpleNetwork::fill_weights(
 	}
 }
 
-size_t SimpleNetwork::GetInputLayerSize() const { return input_layer_size; }
+size_t NNL::SimpleNetwork::GetInputLayerSize() const { return input_layer_size; }
 
-size_t SimpleNetwork::GetOutputLayerSize() const { return output_layer_size; }
+size_t NNL::SimpleNetwork::GetOutputLayerSize() const { return output_layer_size; }
 
-SimpleNetwork::SimpleNetwork() : RandomElement() { }
+NNL::SimpleNetwork::SimpleNetwork() : RandomElement() { }
 
-SimpleNetwork::SimpleNetwork(NeuronFunction function, 
-	std::initializer_list<size_t> structure,
+NNL::SimpleNetwork::SimpleNetwork(NeuronFunction function,
+	initializer_list<size_t> structure,
 	SimpleNetworkFillingType filling_type) : SimpleNetwork()
 {
 	layers_num = structure.size();
@@ -126,10 +129,8 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary) :
 {
 	std::ifstream file;
 	if (is_in_binary)
-		file = std::ifstream(file_location,
-			std::ios::binary | std::ios::in);
-	else file = std::ifstream(file_location,
-		std::ios::in);
+		new (&file) std::ifstream(file_location, std::ios::binary | std::ios::in);
+	else new (&file) std::ifstream(file_location, std::ios::in);
 	if (!file)
 	{
 		std::stringstream ss;
@@ -188,7 +189,7 @@ SimpleNetwork::SimpleNetwork(std::string& file_location, bool is_in_binary) :
 }
 
 SimpleNetwork::SimpleNetwork(const char* file_location, bool is_in_binary) :
-	SimpleNetwork(std::string(file_location), is_in_binary) { }
+	SimpleNetwork((std::string&) file_location, is_in_binary) { }
 
 SimpleNetwork::SimpleNetwork(const SimpleNetwork& to_copy) :
 	SimpleNetwork()
@@ -305,10 +306,8 @@ void SimpleNetwork::SaveToFile(std::string& file_location,
 {
 	std::ofstream file;
 	if(write_in_binary)
-		file = std::ofstream(file_location,
-			std::ios::binary | std::ios::out);
-	else file = std::ofstream(file_location, 
-		std::ios::out);
+		new (&file) std::ofstream(file_location, std::ios::binary | std::ios::out);
+	else new (&file) std::ofstream(file_location, std::ios::out);
 	if (!file)
 	{
 		std::stringstream ss;
@@ -349,4 +348,4 @@ void SimpleNetwork::SaveToFile(std::string& file_location,
 }
 
 void SimpleNetwork::SaveToFile(const char* file_location, bool write_in_binary) const
-{ SaveToFile(std::string(file_location), write_in_binary); }
+{ SaveToFile((std::string&) file_location, write_in_binary); }

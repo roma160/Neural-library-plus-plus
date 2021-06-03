@@ -1,6 +1,5 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <crtdbg.h>
 
 #include <iostream>
 #include <chrono>
@@ -23,37 +22,6 @@ size_t get_cur_millis()
 	chrono::steady_clock::now().time_since_epoch()).count(); }
 size_t get_micros_delta(time_point begin, time_point end)
 { return std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count(); }
-
-class test_copy
-{
-public:
-	int number;
-
-	test_copy(int n)
-	{
-		number = n;
-		cout << number << " constructor called\n";
-	}
-	test_copy(test_copy& to_copy)
-	{
-		number = to_copy.number + 1;
-		cout << "Copy constructor called on " << number << " from " << to_copy.number<<"\n";
-	}
-	~test_copy()
-	{
-		cout << number << " destructor called\n";
-	}
-
-	void operator=(test_copy& to_copy)
-	{
-		cout << "Copy operator called!\n";
-	}
-
-	static test_copy& func()
-	{
-		return test_copy(5);
-	}
-};
 
 void xor_test()
 {

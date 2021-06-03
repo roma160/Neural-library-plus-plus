@@ -1,7 +1,10 @@
 #include "simple_data.h"
 #include <fstream>
 #include <utility>
+#include <iostream>
 #include "neural_core/data_saver.h"
+
+using namespace NNL;
 
 size_t I_SimpleData::GetSize() const { return DataSize; }
 
@@ -40,10 +43,8 @@ SimpleData::SimpleData(
 {
 	std::ifstream file;
 	if (is_in_binary)
-		file = std::ifstream(file_location,
-			std::ios::binary | std::ios::in);
-	else file = std::ifstream(file_location,
-		std::ios::in);
+		new (&file) std::ifstream(file_location, std::ios::binary | std::ios::in);
+	else new (&file) std::ifstream(file_location, std::ios::in);
 	if (!file)
 	{
 		std::stringstream ss;
@@ -134,22 +135,20 @@ void SimpleData::AddData(
 	DataSize++;
 }
 
-void SimpleData::AddData(
-	const double input_data[], const double output_data[])
+void SimpleData::AddData(const double input_data[], const double output_data[])
 {
 	InputData.push_back(vec<double>(InputLayerSize, (double*)input_data));
 	OutputData.push_back(vec<double>(OutputLayerSize, (double*)output_data));
 	DataSize++;
 }
 
-void SimpleData::SaveData(
-	std::string file_location, bool write_in_binary)
+void SimpleData::SaveData(const std::string& file_location, bool write_in_binary)
 {
 	std::ofstream file;
 	if (write_in_binary)
-		file = std::ofstream(file_location,
+		new (&file) std::ofstream(file_location,
 			std::ios::binary | std::ios::out);
-	else file = std::ofstream(file_location,
+	else new (&file) std::ofstream(file_location,
 		std::ios::out);
 	if (!file)
 	{
@@ -185,9 +184,8 @@ void SimpleData::SaveData(
 	file.close();
 }
 
-void SimpleData::SaveData(
-	const char* file_location, bool write_in_binary)
-{ SaveData(std::string(file_location), write_in_binary); }
+void SimpleData::SaveData(const char* file_location, bool write_in_binary)
+{ SaveData((const std::string&) file_location, write_in_binary); }
 
 void SimpleBinStreamData::add_to_buffer(size_t index)
 {
@@ -201,8 +199,7 @@ void SimpleBinStreamData::add_to_buffer(size_t index)
 SimpleBinStreamData::SimpleBinStreamData(std::string file_name, int threads_num)
 {
 	FileName = std::move(file_name);
-	Stream = std::ifstream(FileName,
-		std::ios::binary | std::ios::in);
+	new (&Stream) std::ifstream(FileName, std::ios::binary | std::ios::in);
 	if (!Stream)
 	{
 		std::stringstream ss;
