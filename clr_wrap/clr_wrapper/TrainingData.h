@@ -6,17 +6,22 @@ using namespace System;
 
 namespace NNL
 {
-	ref class WSimpleNetwork;
+	public ref class ITrainingData
+	{
+	internal:
+		I_SimpleData* _simple_data;
+
+	public:
+		cli::array<double>^ GetInputData(long index);
+		cli::array<double>^ GetOutputData(long index);
+	};
 	
 	/// <summary>
 	/// Class that loads training data into the RAM.
 	/// Performs quite fast, but requires a lot of memory.
 	/// </summary>
-	ref class TrainingData
+	public ref class TrainingData : ITrainingData
 	{
-	internal:
-		SimpleData* _simple_data;
-
 	public:
 		TrainingData(String^ fileLocation, bool isBinary);
 		~TrainingData();
@@ -26,11 +31,8 @@ namespace NNL
 	/// Class that opens stream to the training data, and implements
 	/// interface of reading tests from it.
 	/// </summary>
-	ref class StreamTrainingData
+	public ref class StreamTrainingData : ITrainingData
 	{
-	internal:
-		SimpleBinStreamData* _simple_data;
-
 	public:
 		StreamTrainingData(String^ fileLocation, bool isBinary);
 		~StreamTrainingData();
