@@ -106,10 +106,10 @@ int main(){
 	v[0][0] = vec<int>(3, false);
 	vec<vec<vec<vec<int>>>> shape_copy = vec<vec<vec<vec<int>>>>::create_from_shape(vec<size_t>{2, 2, 3, 4});
 	cout << shape_copy;*/
-	time_point begin = get_time_point();
+	//time_point begin = get_time_point();
 	//mnist_test();
-	xor_test();
-	cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());
+	//xor_test();
+	//cout << "\nWorking time : " << get_millis_delta(begin, get_time_point());
 	//xor_test();
 
 	/*vec<vec<int>> a = { {1, 2}, {3, 4} };
@@ -118,5 +118,21 @@ int main(){
 	b[0][0] = b[1][1];
 	cout << "a : " << a << "\n";
 	cout << "b : " << b << "\n";*/
+	
+	//Creating mnist network backup :
+	SimpleNetwork network(Sigmoid, { 784, 128, 10 }, RndNormalised);
+	SimpleBinStreamData train_data("../../../testing/tests/mnist/main_data.b");
+	SimpleTrainer trainer(&network, &train_data, 1.1, 1, 20);
+	trainer.TrainNetwork(5000, &cout, 100);
+	
+	SimpleBinStreamData test_data("../../../testing/tests/mnist/testing_data.b");
+
+	for (int i = 0; i < 20; i++)
+		cout << test_data.GetOutputData(i)->max_element_ind() << " - " <<
+			network.ComputeNetworkAnswer(*test_data.GetInputData(i)) << "\n";
+			
+	cout<<"Now saving the network...\n";
+	network.SaveToFile("../../../testing/tests/mnist/network_backup.b", true);
+	cout<<"Now the network is must be saved...";
 	return 0;
 }
