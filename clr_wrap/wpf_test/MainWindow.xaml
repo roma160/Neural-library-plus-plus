@@ -4,18 +4,37 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_test"
+        xmlns:custom="clr-namespace:wpf_test.Custom_elements"
         mc:Ignorable="d"
-        Title="MainWindow" Height="312.162" Width="439.305" FontSize="16">
+        Title="MainWindow" Height="497.495" Width="633.972" FontSize="16" Loaded="Window_Loaded" Closed="Window_Closed" ResizeMode="CanMinimize">
     <Grid>
-        <Button x:Name="random_test_button" Content="Random test" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="152" Height="50" Click="random_test_button_Click"/>
-        <GroupBox Header="Test data :" HorizontalAlignment="Left" Height="275" VerticalAlignment="Top" Width="259" Margin="167,0,0,0">
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="280" Margin="10,10,0,0" VerticalAlignment="Top" Width="280">
             <Grid>
-                <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="Test index : " VerticalAlignment="Top" Width="93" FontWeight="Bold" BorderBrush="{x:Null}" IsHitTestVisible="False"/>
-                <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="Test answer :" VerticalAlignment="Top" Width="107" FontWeight="Bold" BorderBrush="{x:Null}" IsHitTestVisible="False" Margin="0,28,0,0"/>
-                <ListBox x:Name="network_results" HorizontalAlignment="Left" Height="191" Margin="0,56,0,0" VerticalAlignment="Top" Width="247"/>
-                <TextBox x:Name="test_index_text" HorizontalAlignment="Left" Height="23" Margin="93,0,0,0" TextWrapping="Wrap" Text="null" VerticalAlignment="Top" Width="154" FontStyle="Italic"/>
-                <TextBox x:Name="test_answer_text" HorizontalAlignment="Left" Height="33" Margin="107,23,0,0" TextWrapping="Wrap" Text="null" VerticalAlignment="Top" Width="140" FontWeight="Bold" FontSize="20"/>
+                <custom:CustomInkCanvas x:Name="image_canvas" MinWidth="0" MinHeight="0"/>
             </Grid>
-        </GroupBox>
+        </Border>
+        <Button x:Name="clear_button" Content="Clear" HorizontalAlignment="Left" Margin="10,295,0,0" VerticalAlignment="Top" Width="95" Height="46" Click="clear_button_Click"/>
+        <ListBox x:Name="results_list" HorizontalAlignment="Left" Height="280" Margin="295,10,0,0" VerticalAlignment="Top" Width="321" HorizontalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Number, StringFormat=\{0\})}" Grid.Column="0" FontWeight="Bold"/>
+                        <ProgressBar Grid.Column="1" HorizontalAlignment="Stretch" Minimum="0" Maximum="100" Value="{Binding Value}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button x:Name="test_btn" Content="Testing button" HorizontalAlignment="Left" Margin="10,402,0,0" VerticalAlignment="Top" Width="107" Height="46" Click="test_btn_Click"/>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="153" Margin="295,295,0,10" VerticalAlignment="Top" Width="153">
+            <Image x:Name="preview_image" Stretch="Fill"/>
+        </Border>
+        <TextBlock HorizontalAlignment="Left" Margin="10,372,0,0" TextWrapping="Wrap" Text="Test index :" VerticalAlignment="Top"/>
+        <TextBox x:Name="test_index_text" HorizontalAlignment="Left" Height="23" Margin="93,374,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="197" FontFamily="Consolas"/>
+        <Button x:Name="next_test_button" Content="Next test" HorizontalAlignment="Left" Margin="188,402,0,0" VerticalAlignment="Top" Width="102" Height="46" Click="next_test_button_Click"/>
+        <CheckBox x:Name="using_scaling_checkbox" Content="Use image scaling" HorizontalAlignment="Left" Margin="453,428,0,0" VerticalAlignment="Top" Click="using_scaling_checkbox_Checked" IsChecked="True"/>
     </Grid>
 </Window>

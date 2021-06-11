@@ -15,3 +15,11 @@ cli::array<T>^ vec_to_array(vec<T>* v)
 	Marshal::Copy(IntPtr(v->p()), ret, 0, length);
 	return ret;
 }
+
+template<typename T>
+vec<T> array_to_vec(cli::array<T>^ arr)
+{
+	vec<T> ret(arr->Length, false);
+	Marshal::Copy(arr, 0, IntPtr(ret.p()), arr->Length);
+	return ret;
+}

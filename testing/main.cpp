@@ -123,7 +123,7 @@ int main(){
 	SimpleNetwork network(Sigmoid, { 784, 128, 10 }, RndNormalised);
 	SimpleBinStreamData train_data("../../../testing/tests/mnist/main_data.b");
 	SimpleTrainer trainer(&network, &train_data, 1.1, 1, 20);
-	trainer.TrainNetwork(5000, &cout, 100);
+	trainer.TrainNetwork(60000, &cout, 100);
 	
 	SimpleBinStreamData test_data("../../../testing/tests/mnist/testing_data.b");
 

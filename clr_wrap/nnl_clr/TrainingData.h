@@ -12,7 +12,7 @@ namespace NNL
 		I_SimpleData* _simple_data;
 
 	public:
-		cli::array<double>^ GetInputData(long index);
+		cli::array<double> ^ GetInputData(long index);
 		cli::array<double>^ GetOutputData(long index);
 	};
 	

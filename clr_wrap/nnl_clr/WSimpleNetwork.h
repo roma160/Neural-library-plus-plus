@@ -18,10 +18,13 @@ namespace NNL
 		/// </summary>
 		WSimpleNetwork(String^ fileLocation, bool isBinary);
 		~WSimpleNetwork();
-
+		
+		property unsigned long InputLayerSize
+		{ unsigned long get(); }
 		property unsigned long OutputLayerSize
 		{ unsigned long get(); }
 
 		cli::array<double>^ GetNetworkOutput(ITrainingData^ data, long testIndex);
+		cli::array<double>^ GetNetworkOutput(cli::array<double>^ input_data);
 	};
 }
