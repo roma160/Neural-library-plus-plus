@@ -1,6 +1,4 @@
 # Neural-library-plus-plus
-Implementation of nympy-like library to work with marticies and usage of it to implement a simple realtime digits recognition
+Implementation of nympy-like library in C++ to work with matrices and usage of it to implement a simple *real-time* digits recognition on CPU
 
-
-https://github.com/roma160/Neural-library-plus-plus/assets/17747914/8ae4074a-0d18-4231-abfb-6b25ea5a53d5
-
+https://github.com/user-attachments/assets/a3b145cd-5db6-48f1-a132-0c82db0cb853
